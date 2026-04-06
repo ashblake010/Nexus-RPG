@@ -728,7 +728,6 @@ function healParty(){
 function openGym(){
   if(G.map==='ironhaven'){openGym2();return;}
   if(G.map==='aquacore'){openGym3();return;}
-  if(G.flags.beatGym1){notify('You already have the VOLT BADGE! ⚡','#ffdd00');return;}
   document.getElementById('gym-title').textContent='GRIDLOCK GYM';
   document.getElementById('gym-subtitle').textContent='LEADER: ZARA — ELECTRIC TYPE';
   document.getElementById('gym-leader-emoji').textContent='👩';
@@ -740,11 +739,6 @@ function openGym(){
   showScreen('gym');
 }
 function openGym2(){
-  if(!G.flags.beatGym1){
-    notify('You need the VOLT BADGE to challenge this Gym! ⚡','#ffdd00');
-    return;
-  }
-  if(G.flags.beatGym2){notify('You already have the FORGE BADGE! ⚙️','#aabbcc');return;}
   document.getElementById('gym-title').textContent='IRONHAVEN GYM';
   document.getElementById('gym-subtitle').textContent='LEADER: REX — STEEL TYPE';
   document.getElementById('gym-leader-emoji').textContent='👨‍🏭';
@@ -756,11 +750,6 @@ function openGym2(){
   showScreen('gym');
 }
 function openGym3(){
-  if(!G.flags.beatGym2){
-    notify('You need the FORGE BADGE to challenge this Gym! 💧','#00bbff');
-    return;
-  }
-  if(G.flags.beatGym3){notify('You already have the DEPTH BADGE! 💧','#00bbff');return;}
   document.getElementById('gym-title').textContent='AQUACORE GYM';
   document.getElementById('gym-subtitle').textContent='LEADER: MARINA — WATER TYPE';
   document.getElementById('gym-leader-emoji').textContent='👩‍🔬';
