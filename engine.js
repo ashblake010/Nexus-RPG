@@ -625,7 +625,6 @@ function move(dir){
   if(G.map==='bootville'&&tile===TILE.EXIT_S){travelToGridlock();return;}
   if(G.map==='gridlock'&&tile===TILE.EXIT_N){travelToBootville();return;}
   if(G.map==='gridlock'&&tile===TILE.EXIT_S){
-    if(!G.flags.beatGym1){notify('Earn the VOLT BADGE from Zara first! ⚡','#ffdd00');return;}
     travelToRoute2();return;
   }
   if(G.map==='route2'&&tile===TILE.EXIT_N){setMap('gridlock',11,19);return;}
