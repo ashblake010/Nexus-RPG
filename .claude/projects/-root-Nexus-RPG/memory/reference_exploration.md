@@ -30,6 +30,12 @@ Based on analysis of current implementation vs claimed status, the following dev
 8. **Task #9**: Add remaining wild Pokémon species to reach 12 total wilds
 9. **Task #10**: Enhance visual assets: begin transition to pixel art sprites
 
+## Fixes Applied (2026-04-06):
+- **Task #11**: Fixed Aquacore accessibility by adding missing east exit from Route 2
+  - Changed tile at Route 2 position [19][11] from PATH (4) to EXIT_N (9) 
+  - This enables travel FROM Route 2 TO Aquacore by moving north from that position
+  - Resolved the issue where Aquacore was reported as inaccessible
+
 ## Verification Notes:
 From examining the source files, I can verify that:
 - Maps for Bootville, Gridlock City, Ironhaven, and Aquacore are implemented
