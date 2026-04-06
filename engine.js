@@ -91,7 +91,7 @@ function startGame(){
   Object.assign(G,{playerName:'ALEX',starter:null,party:[],badges:[],location:'BOOTVILLE',
     steps:0,x:7,y:8,map:'bootville',facing:'down',
     bag:{nexball:5,superball:0,healpack:3,revive:1},
-    money:500,flags:{metAda:false,beatGym1:false,visitedGridlock:false}});
+    money:500,flags:{metAda:false,beatGym1:false,visitedGridlock:false,visitedIronhaven:false,visitedAquacore:false,beatKael:false}});
   runIntro();
 }
 function saveGame(){localStorage.setItem('nexus_v3',JSON.stringify(G));notify('GAME SAVED ◈');}
@@ -100,6 +100,10 @@ function loadGame(){
   if(!s){notify('NO SAVE DATA FOUND');return;}
   const data=JSON.parse(s);
   Object.assign(G,data);
+  // Backwards compatibility for older saves
+  if(G.flags.visitedIronhaven===undefined) G.flags.visitedIronhaven=false;
+  if(G.flags.visitedAquacore===undefined) G.flags.visitedAquacore=false;
+  if(G.flags.beatKael===undefined) G.flags.beatKael=false;
   G.party.forEach(initMovePP); // fill missing PP entries from old saves
   initOverworld();showScreen('overworld');
 }
@@ -376,6 +380,18 @@ const BUILDINGS_BY_MAP={
     {x:5, y:7, key:'street_lamp',  w:1, h:2, blockBase:true},
     {x:17,y:7, key:'street_lamp',  w:1, h:2, blockBase:true},
   ],
+  aquacore:[
+    {x:4, y:2, key:'gym',          w:3, h:2},  // gym — entrance y=3, NPC at (4,3)
+    {x:16,y:2, key:'center',       w:3, h:3},  // center — entrance y=4, NPC at (16,4)
+    {x:22,y:2, key:'shop',         w:2, h:2},  // shop — entrance y=3, NPC at (22,3)
+    {x:2, y:8, key:'ocean_lab',    w:4, h:4},  // ocean research lab
+    {x:18,y:8, key:'aquacore_tower',w:4, h:4}, // water purification tower
+    {x:6, y:10,key:'pier',         w:3, h:2},  // fishing pier
+    {x:14,y:10,key:'boat_dock',    w:2, h:2},  // boat docking area
+    {x:8, y:6, key:'street_lamp',  w:1, h:2, blockBase:true},
+    {x:16,y:6, key:'street_lamp',  w:1, h:2, blockBase:true},
+    {x:10,y:14,key:'street_lamp',  w:1, h:2, blockBase:true},
+  ]
 };
 function getBuildingsForMap(mapId){return BUILDINGS_BY_MAP[mapId]||[];}
 
@@ -389,6 +405,7 @@ const MAP_TINT={
   gridlock:  {wall:'rgba(10,10,60,0.25)'},
   route2:    {grass:'rgba(60,40,10,0.25)',   path:'rgba(80,60,30,0.20)',  wall:'rgba(60,40,20,0.25)'},
   ironhaven: {wall:'rgba(30,20,10,0.30)'},
+  aquacore:  {water:'rgba(30,160,255,0.10)', path:'rgba(200,220,255,0.08)',wall:'rgba(20,60,100,0.12)'},
 };
 // Accent overlay for neon glow on Gridlock path tiles
 const MAP_ACCENT={
@@ -613,7 +630,10 @@ function move(dir){
   }
   if(G.map==='route2'&&tile===TILE.EXIT_N){setMap('gridlock',11,19);return;}
   if(G.map==='route2'&&tile===TILE.EXIT_S){travelToIronhaven();return;}
+  if(G.map==='route2'&&tile===TILE.EXIT_E){travelToAquacore();return;}
   if(G.map==='ironhaven'&&tile===TILE.EXIT_N){setMap('route2',11,19);return;}
+  if(G.map==='aquacore'&&tile===TILE.EXIT_N){setMap('route2',11,19);return;}
+  if(G.map==='aquacore'&&tile===TILE.EXIT_W){setMap('route2',11,19);return;}
   if(tile===TILE.CENTER){openPokemonCenter();return;}
   if(tile===TILE.GYM){openGym();return;}
   drawMap();updateOWHeader();
@@ -642,10 +662,18 @@ function travelToIronhaven(){
     showScreen('intro');renderDialogue();
   } else setMap('ironhaven',11,2);
 }
+function travelToAquacore(){
+  if(!G.flags.visitedAquacore){
+    G.flags.visitedAquacore=true;
+    currentDialogue=[{emoji:'🌊',speaker:'NARRATOR',text:'You arrive at AQUACORE - a coastal city built around marine research and water purification. The Gym specializes in Water-type Pokémon, and the ocean air carries whispers of SYNTEK\'s offshore operations.'}];
+    dialogueIndex=0;dialogueCallback=()=>{setMap('aquacore',11,2);};
+    showScreen('intro');renderDialogue();
+  } else setMap('aquacore',11,2);
+}
 function setMap(mapId,x,y){
   fadeTransition(()=>{
     G.map=mapId;G.x=x;G.y=y;
-    const names={bootville:'BOOTVILLE',gridlock:'GRIDLOCK CITY',route2:'ROUTE 2 — IRON PASS',ironhaven:'IRONHAVEN CITY'};
+    const names={bootville:'BOOTVILLE',gridlock:'GRIDLOCK CITY',route2:'ROUTE 2 — IRON PASS',ironhaven:'IRONHAVEN CITY',aquacore:'AQUACORE'};
     G.location=names[mapId]||mapId.toUpperCase();
     showScreen('overworld');initOverworld();
   });
@@ -699,6 +727,7 @@ function healParty(){
 // ── GYM ──
 function openGym(){
   if(G.map==='ironhaven'){openGym2();return;}
+  if(G.map==='aquacore'){openGym3();return;}
   if(G.flags.beatGym1){notify('You already have the VOLT BADGE! ⚡','#ffdd00');return;}
   document.getElementById('gym-title').textContent='GRIDLOCK GYM';
   document.getElementById('gym-subtitle').textContent='LEADER: ZARA — ELECTRIC TYPE';
@@ -726,6 +755,22 @@ function openGym2(){
   document.getElementById('gym-btn-battle').onclick=startGym2Battle;
   showScreen('gym');
 }
+function openGym3(){
+  if(!G.flags.beatGym2){
+    notify('You need the FORGE BADGE to challenge this Gym! 💧','#00bbff');
+    return;
+  }
+  if(G.flags.beatGym3){notify('You already have the DEPTH BADGE! 💧','#00bbff');return;}
+  document.getElementById('gym-title').textContent='AQUACORE GYM';
+  document.getElementById('gym-subtitle').textContent='LEADER: MARINA — WATER TYPE';
+  document.getElementById('gym-leader-emoji').textContent='👩‍🔬';
+  document.getElementById('gym-leader-name').textContent='MARINA';
+  document.getElementById('gym-badge-emoji').textContent='💧';
+  document.getElementById('gym-dialogue-text').textContent=
+    '"Welcome to Aquacore Gym. I\'m Marina. My Water-type Pokémon rule the currents of this ocean. Think you can withstand the pressure? I\'ve been the Gym Leader here for four years — the tides have never favored the unprepared."';
+  document.getElementById('gym-btn-battle').onclick=startGym3Battle;
+  showScreen('gym');
+}
 function startGymBattle(){
   const alive=G.party.filter(p=>p.hp>0);
   if(alive.length===0){notify('Your Pokémon are all fainted! Heal first!','#ff3355');return;}
@@ -750,6 +795,19 @@ function startGym2Battle(){
   battleState._gymLeader={name:'REX',emoji:'👨‍🏭'};
   battleState._gym2=true;
   startBattle(rexPoke[0],true,true);
+}
+function startGym3Battle(){
+  const alive=G.party.filter(p=>p.hp>0);
+  if(alive.length===0){notify('Your Pokémon are all fainted! Heal first!','#ff3355');return;}
+  const marinaPoke=[
+    JSON.parse(JSON.stringify(POKEMON_BASE.tidaloon)),
+    JSON.parse(JSON.stringify(POKEMON_BASE.cetacean))
+  ];
+  battleState._gymQueue=marinaPoke;
+  battleState._gymIndex=0;
+  battleState._gymLeader={name:'MARINA',emoji:'👩‍🔬'};
+  battleState._gym3=true;
+  startBattle(marinaPoke[0],true,true);
 }
 
 // ── BAG / PARTY / MENU ──
@@ -1365,6 +1423,14 @@ function endBattle(won,caught){
       document.getElementById('result-btn').onclick=()=>showGym2VictoryScene();
       showScreen('result');return;
     }
+    if(bs._gym3){
+      G.flags.beatGym3=true;G.badges.push('depth');
+      document.getElementById('result-title').textContent='GYM CLEARED!';
+      document.getElementById('result-title').className='result-title result-win';
+      document.getElementById('result-detail').textContent='You defeated Leader MARINA!\n💧 You received the DEPTH BADGE!\n+'+bs.xpGain+' XP  +'+moneyGain+' NC'+extra;
+      document.getElementById('result-btn').onclick=()=>showGym3VictoryScene();
+      showScreen('result');return;
+    }
     if(bs.isGym){
       G.flags.beatGym1=true;G.badges.push('volt');
       document.getElementById('result-title').textContent='GYM CLEARED!';
@@ -1403,6 +1469,16 @@ function showGym2VictoryScene(){
     {emoji:'🚪',speaker:'NARRATOR',text:'You leave Ironhaven Gym with 2 badges. The road ahead grows darker. SYNTEK\'s shadow is everywhere.'},
   ];
   dialogueIndex=0;dialogueCallback=()=>{updateOWHeader();saveGame();setMap(G.map,G.x,G.y);};
+  showScreen('intro');renderDialogue();
+}
+function showGym3VictoryScene(){
+  currentDialogue=[
+    {emoji:'👩‍🔬',speaker:'MARINA',text:'"...You\'re skilled. The ocean respects strength. Take the Depth Badge. You\'ve earned it."'},
+    {emoji:'💧',speaker:'NARRATOR',text:'You received the DEPTH BADGE! It sparkles like sunlight on pristine waters.'},
+    {emoji:'👩‍🔬',speaker:'MARINA',text:'"One more thing. I\'ve been monitoring SYNTEK\'s deep-sea facilities. Unusual pressure readings. Pokémon fleeing the trenches. Something is awakening in the abyss. Prepare yourself, trainer."'},
+    {emoji:'🚪',speaker:'NARRATOR',text:'You leave Aquacore Gym with 3 badges. The surface grows turbulent. What stirs below prepares to rise.'},
+  ];
+  dialogueIndex=0;dialogueCallback=()=>{updateOWHeader();showScreen('overworld');drawMap();saveGame();};
   showScreen('intro');renderDialogue();
 }
 

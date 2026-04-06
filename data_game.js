@@ -23,6 +23,12 @@ const EVOLUTIONS = {
   coglet:   { into:'gearoth',  level:20, emoji:'🔩', name:'GEAROTH',   type:'Steel',        hpBonus:22, atkBonus:10, defBonus:18 },
   sparkit:  { into:'voltfang', level:18, emoji:'🦊', name:'VOLTFANG',  type:'Electric/Fire',hpBonus:18, atkBonus:14, defBonus:6  },
   slagmole: { into:'drillcore',level:30, emoji:'⛏️', name:'DRILLCORE', type:'Ground/Steel',  hpBonus:26, atkBonus:16, defBonus:20 },
+
+  // AQUACORE EVOLUTIONS
+  finchen: { into:'tidaloon',level:16, emoji:'🐬', name:'TIDALOON',   type:'Water/Ice',   hpBonus:23, atkBonus:5,  defBonus:5  },
+  tidaloon:{ into:'cetacean',level:32, emoji:'🐋', name:'CETACEAN',    type:'Water/Psychic', hpBonus:40, atkBonus:8,  defBonus:6  },
+  coralle: { into:'reeffist',level:18, emoji:'🪼', name:'REEFIST',     type:'Water/Steel', hpBonus:29, atkBonus:8,  defBonus:8  },
+  reeffist:{ into:'oceanaut',level:36, emoji:'🌊⚡',name:'OCEANAUT',   type:'Water/Electric',hpBonus:20, atkBonus:6,  defBonus:2  },
 };
 let pendingEvolution = null;
 
@@ -56,6 +62,15 @@ const POKEMON_BASE = {
   hydrobit: {name:'HYDROBIT',emoji:'🌊',type:'Water/Psychic',level:16,maxHp:52,hp:52,atk:17,def:23,spd:14,moves:['Water Gun','Mind Current','Confusion','Protect'],xp:0,xpNext:160,catchRate:45},
   // KAEL RIVAL TEAM
   kael_starter:{name:'RIVALMON',emoji:'🔥',type:'Fire/Electric',level:16,maxHp:64,hp:64,atk:22,def:14,spd:20,moves:['Plasma Surge','Thunderbolt','Quick Attack','Ember'],xp:0,xpNext:0,catchRate:5},
+
+  // AQUACORE WILD POKÉMON
+  finchen:{name:'FINCHEN',emoji:'🐧',type:'Water',level:3,maxHp:22,hp:22,atk:9,def:7,spd:11,moves:['Water Gun','Tail Whip'],xp:0,xpNext:80,wild:true,catchRate:180},
+  tidaloon:{name:'TIDALOON',emoji:'🐬',type:'Water/Ice',level:13,maxHp:45,hp:45,atk:14,def:12,spd:10,moves:['Water Gun','Powder Snow','Aqua Jet','Ice Shard'],xp:0,xpNext:140,wild:true,catchRate:120},
+  cetacean:{name:'CETACEAN',emoji:'🐋',type:'Water/Psychic',level:25,maxHp:85,hp:85,atk:22,def:18,spd:14,moves:['Surf','Psychic','Aqua Tail','Calm Mind'],xp:0,xpNext:240,wild:false,catchRate:60},
+
+  coralle:{name:'CORALLE',emoji:'🪸',type:'Water/Rock',level:4,maxHp:26,hp:26,atk:8,def:14,spd:6,moves:['Water Gun','Rock Throw','Harden'],xp:0,xpNext:90,wild:true,catchRate:150},
+  reeffist:{name:'REEFIST',emoji:'🪼',type:'Water/Steel',level:16,maxHp:55,hp:55,atk:16,def:22,spd:8,moves:['Water Gun','Iron Head','Aqua Jet','Metal Claw'],xp:0,xpNext:160,wild:true,catchRate:100},
+  oceanaut:{name:'OCEANAUT',emoji:'🌊⚡',type:'Water/Electric',level:28,maxHp:75,hp:75,atk:20,def:16,spd:22,moves:['Surf','Thunderbolt','Aqua Tail','Volt Switch'],xp:0,xpNext:260,wild:false,catchRate:50},
 };
 
 const MOVE_DATA = {
@@ -196,6 +211,40 @@ const MAPS = {
     [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
     [1,4,4,4,4,4,4,4,4,4,4,10,4,4,4,4,4,4,4,4,4,4,4,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  ],
+  aquacore:[
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,9,4,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,4,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,4,4,4,4,4,4,4,4,4,10,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   ]
 };
 const NPCS_BY_MAP = {
@@ -231,6 +280,42 @@ const NPCS_BY_MAP = {
     {x:3,y:9,emoji:'🧑‍💼',name:'SYNTEK EXEC',dialogue:["SYNTEK Corp is building a better tomorrow!","...Don't look too closely at what's behind that facility door.","Nothing to see there. Absolutely nothing. Move along."]},
     {x:19,y:9,emoji:'👧',name:'YOUNG TRAINER',dialogue:["I just beat the Gym! ZARA is no joke.","Her AMPCORE hits SO hard with Volt Surge.","Use Potions to keep your HP up during the fight!"]},
     {x:20,y:3,emoji:'🛒',name:'SHOP',dialogue:null,isShop:true},
+  ],
+  aquacore:[
+    {x:4,y:3,emoji:'💧',name:'GYM GUIDE',dialogue:[
+      "Welcome to AQUACORE GYM!",
+      "Leader MARINA uses Water-type Pokémon.",
+      "Electric and Grass moves are super effective! Water types resist Fire and Ice.",
+      "Make sure you've trained before challenging her — she's swift!"
+    ],isGym:true},
+    {x:16,y:4,emoji:'👩‍⚕️',name:'NURSE JOY',dialogue:[
+      "Welcome to the Aquacore Pokémon Center!",
+      "Your Pokémon will be restored to full health here — free of charge!"
+    ],isCenter:true},
+    {x:22,y:3,emoji:'🛒',name:'SHOP',dialogue:null,isShop:true},
+    {x:8,y:9,emoji:'👩‍🔬',name:'MARINA',dialogue:[
+      "...I've been studying the strange readings from the SYNTEK ocean facility.",
+      "The Water-type Pokémon here are showing unusual behavior patterns.",
+      "Something in the runoff is affecting their natural rhythms.",
+      "Be careful, trainer. The balance of this ecosystem is fragile."
+    ]},
+    {x:2,y:10,emoji:'👨‍⚓',name:'OLD FISHERMAN',dialogue:[
+      "I've fished these waters for 40 years. Used to be teeming with life.",
+      "Lately the catches are strange. Pokémon with odd markings, unusual aggression.",
+      "SYNTEK says it's 'natural variation'. I know what I've seen.",
+      "Trust your instincts, young one. The ocean doesn't lie."
+    ]},
+    {x:12,y:6,emoji:'👩‍🔬',name:'RESEARCHER',dialogue:[
+      "Fascinating! The Coralle specimens show crystalline formations not seen in nature.",
+      "These structures resemble SYNTEK's nano-technology patents...",
+      "But that would be impossible. Wouldn't it?"
+    ],isKael:true},
+    {x:18,y:12,emoji:'🧑‍🚀',name:'SAILOR',dialogue:[
+      "Just came from the southern routes. Things are getting stranger down there.",
+      "Pokémon are avoiding certain areas, like they sense danger.",
+      "SYNTEK's influence spreads like a current through the water.",
+      "Keep your team strong. You'll need them for what's ahead."
+    ]}
   ],
   route2:[
     {x:8,  y:4,  emoji:'📋', name:'SIGN', dialogue:[
@@ -293,5 +378,8 @@ const WILD_BY_MAP = {
   ],
   ironhaven:[
     {id:'gearoth',weight:30},{id:'rustmoth',weight:30},{id:'slagmole',weight:25},{id:'drillcore',weight:15}
+  ],
+  aquacore:[
+    {id:'finchen',weight:35},{id:'sparkit',weight:25},{id:'coglet',weight:15},{id:'coralle',weight:15},{id:'nullbot',weight:10}
   ]
 };
