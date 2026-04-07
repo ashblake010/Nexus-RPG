@@ -633,8 +633,10 @@ function move(dir){
   if(G.map==='ironhaven'&&tile===TILE.EXIT_N){setMap('route2',11,19);return;}
   if(G.map==='aquacore'&&tile===TILE.EXIT_N){setMap('route2',11,19);return;}
   if(G.map==='aquacore'&&tile===TILE.EXIT_W){setMap('route2',11,19);return;}
+  if(G.map==='aquacore'&&tile===TILE.EXIT_E){travelToEmbervault();return;}
   if(tile===TILE.CENTER){openPokemonCenter();return;}
   if(tile===TILE.GYM){openGym();return;}
+  if(G.map==='embervault'&&tile===TILE.EXIT_W){setMap('aquacore',11,19);return;}
   drawMap();updateOWHeader();
   if(map[ny]&&map[ny][nx]===TILE.TALL&&Math.random()<0.2)setTimeout(triggerWildBattle,300);
   if(G.steps%25===0)saveGame();
@@ -669,10 +671,18 @@ function travelToAquacore(){
     showScreen('intro');renderDialogue();
   } else setMap('aquacore',11,2);
 }
+function travelToEmbervault(){
+  if(!G.flags.visitedEmbervault){
+    G.flags.visitedEmbervault=true;
+    currentDialogue=[{emoji:'🌋',speaker:'NARRATOR',text:'You arrive at EMBERVAULT - a volcanic city built around geothermal energy research. The Gym specializes in Fire-type Pokémon, and the air shimmers with heat.'}];
+    dialogueIndex=0;dialogueCallback=()=>{setMap('embervault',11,2);};
+    showScreen('intro');renderDialogue();
+  } else setMap('embervault',11,2);
+}
 function setMap(mapId,x,y){
   fadeTransition(()=>{
     G.map=mapId;G.x=x;G.y=y;
-    const names={bootville:'BOOTVILLE',gridlock:'GRIDLOCK CITY',route2:'ROUTE 2 — IRON PASS',ironhaven:'IRONHAVEN CITY',aquacore:'AQUACORE'};
+    const names={bootville:'BOOTVILLE',gridlock:'GRIDLOCK CITY',route2:'ROUTE 2 — IRON PASS',ironhaven:'IRONHAVEN CITY',aquacore:'AQUACORE',embervault:'EMBERVAULT'};
     G.location=names[mapId]||mapId.toUpperCase();
     showScreen('overworld');initOverworld();
   });
