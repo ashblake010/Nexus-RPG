@@ -8,7 +8,7 @@ const G = {
   location:'BOOTVILLE', steps:0, x:7, y:8, map:'bootville',
   bag:{ nexball:5, superball:0, healpack:3, revive:1 },
   money: 500,
-  flags:{ metAda:false, beatGym1:false, visitedGridlock:false, beatKael:false, visitedIronhaven:false, beatGym2:false }
+  flags:{ metAda:false, beatGym1:false, visitedGridlock:false, beatKael:false, visitedIronhaven:false, beatGym2:false, visitedRoute3:false, sawSyntekImplants:false, metRoute3Researcher:false }
 };
 
 // ── EVOLUTION CHAINS ──
@@ -23,6 +23,10 @@ const EVOLUTIONS = {
   coglet:   { into:'gearoth',  level:20, emoji:'🔩', name:'GEAROTH',   type:'Steel',        hpBonus:22, atkBonus:10, defBonus:18 },
   sparkit:  { into:'voltfang', level:18, emoji:'🦊', name:'VOLTFANG',  type:'Electric/Fire',hpBonus:18, atkBonus:14, defBonus:6  },
   slagmole: { into:'drillcore',level:30, emoji:'⛏️', name:'DRILLCORE', type:'Ground/Steel',  hpBonus:26, atkBonus:16, defBonus:20 },
+  mangtox:  { into:'toxapex', level:28, emoji:'🐙', name:'TOXAPEX',   type:'Poison/Water', hpBonus:30, atkBonus:16, defBonus:18 },
+  toxifin:  { into:'toxapex', level:28, emoji:'🐙', name:'TOXAPEX',   type:'Poison/Water', hpBonus:30, atkBonus:16, defBonus:18 },
+  corail:   { into:'coralord',level:24, emoji:'🌊', name:'CORALORD',  type:'Water/Rock', hpBonus:24, atkBonus:12, defBonus:16 },
+  wasteling:{ into:'wasteon', level:20, emoji:'☠️', name:'WASTEON',   type:'Poison/Steel',hpBonus:22, atkBonus:14, defBonus:15 },
 };
 let pendingEvolution = null;
 
@@ -47,6 +51,15 @@ const POKEMON_BASE = {
   rustmoth:  {name:'RUSTMOTH', emoji:'🦋',type:'Steel/Bug',  level:14,maxHp:48,hp:48,atk:15,def:14,spd:13,moves:['Metal Claw','Bug Bite','Iron Head'],xp:0,xpNext:180,wild:true,catchRate:130},
   gearoth:   {name:'GEAROTH',  emoji:'🔩',type:'Steel',      level:16,maxHp:58,hp:58,atk:18,def:22,spd:8, moves:['Iron Head','Metal Claw','Harden','Rock Slide'],xp:0,xpNext:200,wild:true,catchRate:90},
   drillcore:  {name:'DRILLCORE',emoji:'⛏️',type:'Ground/Steel',level:18,maxHp:66,hp:66,atk:22,def:26,spd:9,moves:['Dig','Iron Claw','Rock Slide','Harden'],xp:0,xpNext:220,wild:true,catchRate:70},
+  // Route 3 wilds (Aquacore approaches)
+  mangtox:    {name:'MANGTOX', emoji:'🐍',type:'Poison/Water', level:12,maxHp:45,hp:45,atk:14,def:12,spd:11,moves:['Poison Fang','Water Gun','Acid Spray','Wrap'],xp:0,xpNext:140,wild:true,catchRate:160},
+  corail:     {name:'CORAIL', emoji:'🪸',type:'Water/Rock', level:10,maxHp:40,hp:40,atk:11,def:16,spd:7,moves:['Water Gun','Rock Throw','Barrier','Bite'],xp:0,xpNext:120,wild:true,catchRate:180},
+  toxifin:    {name:'TOXIFIN', emoji:'🐟',type:'Poison', level:8,maxHp:35,hp:35,atk:12,def:10,spd:13,moves:['Poison Sting','Water Gun','Acid Spray','Tail Whip'],xp:0,xpNext:100,wild:true,catchRate:200},
+  wasteling:  {name:'WASTELING',emoji:'🗑️',type:'Poison', level:6,maxHp:30,hp:30,atk:10,def:8,spd:9,moves:['Poison Fang','Pound','Acid Spray','Hard'],xp:0,xpNext:80,wild:true,catchRate:220},
+  // Route 3 evolutions
+  wasteon:  {name:'WASTEON', emoji:'☠️',type:'Poison/Steel',level:20,maxHp:58,hp:58,atk:22,def:23,spd:12,moves:['Poison Fang','Iron Head','Acid Spray','Metal Claw'],xp:0,xpNext:180,wild:false,catchRate:70},
+  coralord: {name:'CORALORD',emoji:'🌊',type:'Water/Rock',level:24,maxHp:70,hp:70,atk:20,def:24,spd:10,moves:['Water Gun','Rock Slide','Barrier','Surf'],xp:0,xpNext:220,wild:false,catchRate:60},
+  toxapex:  {name:'TOXAPEX',emoji:'🐙',type:'Poison/Water',level:28,maxHp:80,hp:80,atk:26,def:22,spd:14,moves:['Poison Fang','Surf','Acid Spray','Stockpile'],xp:0,xpNext:260,wild:false,catchRate:50},
   // REX GYM TEAM
   rex_forgeant:{name:'FORGEANT',emoji:'⚙️',type:'Steel',    level:18,maxHp:72,hp:72,atk:22,def:26,spd:11,moves:['Iron Head','Metal Claw','Harden','Rock Slide'],xp:0,xpNext:0,catchRate:5},
   rex_drillord:{name:'DRILLORD',emoji:'🔧',type:'Steel/Ground',level:21,maxHp:84,hp:84,atk:28,def:30,spd:13,moves:['Drill Run','Iron Head','Earthquake','Steel Beam'],xp:0,xpNext:0,catchRate:5},
@@ -56,6 +69,9 @@ const POKEMON_BASE = {
   hydrobit: {name:'HYDROBIT',emoji:'🌊',type:'Water/Psychic',level:16,maxHp:52,hp:52,atk:17,def:23,spd:14,moves:['Water Gun','Mind Current','Confusion','Protect'],xp:0,xpNext:160,catchRate:45},
   // KAEL RIVAL TEAM
   kael_starter:{name:'RIVALMON',emoji:'🔥',type:'Fire/Electric',level:16,maxHp:64,hp:64,atk:22,def:14,spd:20,moves:['Plasma Surge','Thunderbolt','Quick Attack','Ember'],xp:0,xpNext:0,catchRate:5},
+  // MARINA GYM TEAM
+  marina_undyne:{name:'UNDYNE',emoji:'💧',type:'Water',level:20,maxHp:68,hp:68,atk:20,def:18,spd:16,moves:['Water Gun','Aqua Jet','Bubble Beam','Protect'],xp:0,xpNext:0,catchRate:5},
+  marina_starmie:{name:'STARMIE',emoji:'💎',type:'Water/Psychic',level:22,maxHp:72,hp:72,atk:22,def:20,spd:24,moves:['Surf','Psychic','Rapid Spin','Recover'],xp:0,xpNext:0,catchRate:5},
 };
 
 const MOVE_DATA = {
@@ -196,16 +212,99 @@ const MAPS = {
     [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
     [1,4,4,4,4,4,4,4,4,4,4,10,4,4,4,4,4,4,4,4,4,4,4,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  ],
+  route3:[
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,4,4,4,4,4,4,4,4,4,4,9,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   ]
+};
+const aquacoreMap = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,4,4,4,4,4,4,4,4,4,4,9,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  aquacore: aquacoreMap,
 };
 const NPCS_BY_MAP = {
   bootville:[
-    {x:8, y:4, emoji:'👩‍🔬', name:'PROF. ADA', dialogue:[
-      "Ah — you made it out there! I've been watching the wild Pokémon near Route 1.",
-      "Something is wrong. Their behaviour patterns are... irregular. Erratic. Like something is overriding their instincts.",
-      "I've flagged it to SYNTEK's regional office three times. They keep telling me it's 'natural adaptation'.",
-      "It isn't. Keep your eyes open as you travel. And keep your Pokémon close.",
-    ]},
+    {x:8, y:4, emoji:'👩‍🔬', name:'PROF. ADA', dialogue:function(){
+      if(G.flags.sawSyntekImplants){
+        return [
+          "You... you saw it, didn't you? The pumping station on Route 3?",
+          "I feared it was worse than simple behavioral changes. But this... this is outright torture.",
+          "SYNTEK isn't just observing the Pokémon anymore. They're rewriting their neural pathways.",
+          "Those implants... they're not just controlling movement. They're suppressing the Pokémon's will.",
+          "I need evidence. Anything you can get from that facility would help expose them.",
+          "Be careful, trainer. SYNTEK doesn't take kindly to investigators."
+        ];
+      } else if(G.flags.beatGym2){
+        return [
+          "You've made it past Ironhaven. Impressive progress.",
+          "The reports from Route 3 are getting more alarming. Pokémon aren't just acting erratically anymore.",
+          "There are whispers of mechanical parts being found in wild specimens.",
+          "SYNTEK's regional office continues to deny everything. They're getting more defensive.",
+          "Keep pushing forward. The truth has to come out eventually."
+        ];
+      } else {
+        return [
+          "Ah — you made it out there! I've been watching the wild Pokémon near Route 1.",
+          "Something is wrong. Their behaviour patterns are... irregular. Erratic. Like something is overriding their instincts.",
+          "I've flagged it to SYNTEK's regional office three times. They keep telling me it's 'natural adaptation'.",
+          "It isn't. Keep your eyes open as you travel. And keep your Pokémon close."
+        ];
+      }
+    }},
     {x:8, y:9, emoji:'📋', name:'SIGN', dialogue:[
       "BOOTVILLE — Population: 312",
       "Gateway to Route 1 and Gridlock City.",
@@ -278,7 +377,54 @@ const NPCS_BY_MAP = {
     {x:3,y:6,emoji:'👴',name:'OLD MINER',dialogue:["I worked the SYNTEK smelting plant for 20 years.","Then they started bringing in those... machines. SYNTH Pokémon.","They don't sleep. They don't eat. They just work. It's not right."]},
     {x:17,y:6,emoji:'👦',name:'BOY',dialogue:["Rex is SO cool! He forged his own badge with a blowtorch!","His Pokémon are made of actual metal. How do they even move?!"]},
     {x:19,y:3,emoji:'🛒',name:'SHOP',dialogue:null,isShop:true},
-  ]
+  ],
+  route3:[
+    {x:8,  y:4,  emoji:'📋', name:'SIGN', dialogue:[
+      "ROUTE 3 — TOXIC WASTELAND",
+      "⚠ SYNTEK Corp active monitoring zone. Surveillance in effect.",
+      "Wild Poison/Water-type Pokémon ahead. Recommended trainer level: 10+",
+      "AQUACORE CITY — 6km south. IRONHAVEN CITY — 6km north."
+    ]},
+    {x:2,  y:10, emoji:'🧑‍🦯', name:'HIKER', dialogue:[
+      "I used to come here to collect rare aquatic plants. Now the water burns my skin.",
+      "The Pokémon... they move in jerky motions. Like they're being controlled.",
+      "I saw a SYNTEK drone drop something in the water yesterday. When I went to investigate,",
+      "there were strange metallic fragments floating where it hit the surface."
+    ]},
+    {x:16, y:10, emoji:'👩‍🔬', name:'RESEARCHER', dialogue:[
+      "I shouldn't be talking to you... but I work for SYNTEK's environmental division.",
+      "We've been tasked with studying the effects of 'Compound X' on local aquatic life.",
+      "The Pokémon absorb it through their gills. It affects their nervous systems.",
+      "They become aggressive... then lethargic... then stop moving entirely.",
+      "If you have proof of what we're doing, bring it to Professor Ada in Bootville.",
+      "She's one of the few who still believes in ethical research."
+    ], isSyntekResearcher:true},
+    {x:11, y:15, emoji:'📋', name:'WARNING SIGN', dialogue:[
+      "RESTRICTED SYNTEK FACILITY AHEAD",
+      "AUTHORIZED PERSONNEL ONLY",
+      "VIOLATORS WILL BE PROSECUTED UNDER CORPORATE SECURITY CODE 9.3",
+      "☠ HAZARDOUS MATERIALS - DO NOT APPROACH WATER INTAKE POINTS"
+    ]},
+    {x:5,  y:12, emoji:'🕵️', name:'MYSTERIOUS FIGURE', dialogue:[
+      "...",
+      "*whispers* Don't go near the old pumping station. SYNTEK's been bringing Pokémon there at night.",
+      "They come back... different. Metal under their skin. Glowing eyes.",
+      "If you value your Pokémon's freedom... stay away from that place.",
+      "*the figure melts into the toxic fog before you can respond*"
+    ], isHidden:true},
+    {x:18, y:8, emoji:'🧑‍🤝‍🧑', name:'SYNTEK AGENT', dialogue:[
+      "Move along, civilian. This area is under SYNTEK Corp jurisdiction.",
+      "Unauthorized observation of our facilities is prohibited.",
+      "Have a nice day."
+    ], isSyntekAgent:true}
+  ],
+  aquacore:[
+    {x:3,y:2,emoji:'💧',name:'GYM GUIDE',dialogue:["Welcome to AQUACORE GYM!","Leader MARINA uses Water-type Pokémon.","Electric and Grass moves are super effective against Water!","Marina has been the Gym Leader here for five years — she knows every current and tide."],isGym:true},
+    {x:13,y:4,emoji:'👩‍⚕️',name:'NURSE JOY',dialogue:["Welcome to Aquacore Pokémon Center!","The salt air here is healing — your Pokémon will be restored to full health."],isCenter:true},
+    {x:19,y:2,emoji:'🛒',name:'SHOP',dialogue:null,isShop:true},
+    {x:8,y:9,emoji:'👩‍🔬',name:'SYNTEK RESEARCHER',dialogue:["I shouldn\'t be saying this... but SYNTEK is dumping waste into the trenches.","It\'s killing the Pokémon and coral reefs. If you have proof, bring it to Professor Ada in Bootville.","She\'ll know what to do."]},
+    {x:2,y:14,emoji:'🧑‍🤝‍🧑',name:'MARINE BIOLOGIST',dialogue:["The coral here used to be vibrant and full of life.","Now it\'s bleached and dying. The fish are disappearing.","Something toxic is in the water... and it\'s not natural."]},
+  ];
 };
 
 const WILD_BY_MAP = {
@@ -293,5 +439,8 @@ const WILD_BY_MAP = {
   ],
   ironhaven:[
     {id:'gearoth',weight:30},{id:'rustmoth',weight:30},{id:'slagmole',weight:25},{id:'drillcore',weight:15}
+  ],
+  route3:[
+    {id:'mangtox',weight:25},{id:'corail',weight:25},{id:'toxifin',weight:20},{id:'wasteling',weight:15},{id:'glitchling',weight:10},{id:'sparkit',weight:5}
   ]
 };

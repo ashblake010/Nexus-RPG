@@ -91,7 +91,7 @@ function startGame(){
   Object.assign(G,{playerName:'ALEX',starter:null,party:[],badges:[],location:'BOOTVILLE',
     steps:0,x:7,y:8,map:'bootville',facing:'down',
     bag:{nexball:5,superball:0,healpack:3,revive:1},
-    money:500,flags:{metAda:false,beatGym1:false,visitedGridlock:false}});
+    money:500,flags:{metAda:false,beatGym1:false,visitedGridlock:false,beatKael:false,visitedIronhaven:false,beatGym2:false,visitedRoute3:false,sawSyntekImplants:false,metRoute3Researcher:false}});
   runIntro();
 }
 function saveGame(){localStorage.setItem('nexus_v3',JSON.stringify(G));notify('GAME SAVED ◈');}
@@ -100,6 +100,18 @@ function loadGame(){
   if(!s){notify('NO SAVE DATA FOUND');return;}
   const data=JSON.parse(s);
   Object.assign(G,data);
+  // Ensure all flags exist for backward compatibility
+  if(G.flags){
+    G.flags.metAda = G.flags.metAda !== undefined ? G.flags.metAda : false;
+    G.flags.beatGym1 = G.flags.beatGym1 !== undefined ? G.flags.beatGym1 : false;
+    G.flags.visitedGridlock = G.flags.visitedGridlock !== undefined ? G.flags.visitedGridlock : false;
+    G.flags.beatKael = G.flags.beatKael !== undefined ? G.flags.beatKael : false;
+    G.flags.visitedIronhaven = G.flags.visitedIronhaven !== undefined ? G.flags.visitedIronhaven : false;
+    G.flags.beatGym2 = G.flags.beatGym2 !== undefined ? G.flags.beatGym2 : false;
+    G.flags.visitedRoute3 = G.flags.visitedRoute3 !== undefined ? G.flags.visitedRoute3 : false;
+    G.flags.sawSyntekImplants = G.flags.sawSyntekImplants !== undefined ? G.flags.sawSyntekImplants : false;
+    G.flags.metRoute3Researcher = G.flags.metRoute3Researcher !== undefined ? G.flags.metRoute3Researcher : false;
+  }
   G.party.forEach(initMovePP); // fill missing PP entries from old saves
   initOverworld();showScreen('overworld');
 }
@@ -376,6 +388,23 @@ const BUILDINGS_BY_MAP={
     {x:5, y:7, key:'street_lamp',  w:1, h:2, blockBase:true},
     {x:17,y:7, key:'street_lamp',  w:1, h:2, blockBase:true},
   ],
+  aquacore:[
+    {x:3, y:2, key:'gym',              w:3, h:2},  // gym — entrance y=3, NPC at (4,3)
+    {x:13,y:2, key:'center',           w:3, h:3},  // center — entrance y=4, NPC at (14,4)
+    {x:19,y:2, key:'shop',             w:2, h:2},  // shop — entrance y=3, NPC at (20,3)
+    {x:2, y:8, key:'neon_building',    w:2, h:4},  // left neon block
+    {x:19,y:8, key:'neon_building',    w:2, h:4},  // right neon block
+    {x:7, y:8, key:'neon_building',    w:2, h:3},  // mid-left neon
+    {x:13,y:8, key:'neon_building',    w:2, h:3},  // mid-right neon
+    {x:2, y:14,key:'neon_building',    w:3, h:2},  // lower-left neon
+    {x:14,y:14,key:'neon_building',    w:3, h:2},  // lower-right neon
+    {x:6, y:8, key:'street_lamp',      w:1, h:2, blockBase:true},
+    {x:16,y:8, key:'street_lamp',      w:1, h:2, blockBase:true},
+    {x:6, y:14,key:'street_lamp',      w:1, h:2, blockBase:true},
+    {x:16,y:14,key:'street_lamp',      w:1, h:2, blockBase:true},
+    {x:8, y:9, key:'sign_post',        w:1, h:1},
+    {x:16,y:9, key:'sign_post',        w:1, h:1},
+  ],
 };
 function getBuildingsForMap(mapId){return BUILDINGS_BY_MAP[mapId]||[];}
 
@@ -389,11 +418,14 @@ const MAP_TINT={
   gridlock:  {wall:'rgba(10,10,60,0.25)'},
   route2:    {grass:'rgba(60,40,10,0.25)',   path:'rgba(80,60,30,0.20)',  wall:'rgba(60,40,20,0.25)'},
   ironhaven: {wall:'rgba(30,20,10,0.30)'},
+  route3:    {water:'rgba(0,100,0,0.15)',   path:'rgba(0,50,0,0.1)'},
+  aquacore:  {water:'rgba(0,100,150,0.2)', path:'rgba(0,150,255,0.1)'},
 };
 // Accent overlay for neon glow on Gridlock path tiles
 const MAP_ACCENT={
   gridlock: {path:'rgba(0,255,255,0.04)'},
   ironhaven:{path:'rgba(255,120,0,0.06)'},
+  aquacore: {path:'rgba(0,255,150,0.05)'},
 };
 
 function drawTile(ctx,t,tx,ty,ts){
@@ -408,6 +440,8 @@ function drawTile(ctx,t,tx,ty,ts){
     route2:   { grass:'ground_r2', path:'ground_r2', tall:'tall_r2' },
     gridlock: { grass:'gridlock_ground', path:'gridlock_path' },
     ironhaven:{ grass:'ironhaven_ground', path:'ironhaven_path' },
+    route3:   { water:'toxic_water', path:'toxic_path' },
+    aquacore: { water:'aquawater', path:'aquapath' },
   };
   const cityMap=cityOverrides[G.map]||{};
   const baseKey=imgMap[t];
@@ -614,6 +648,9 @@ function move(dir){
   if(G.map==='route2'&&tile===TILE.EXIT_N){setMap('gridlock',11,19);return;}
   if(G.map==='route2'&&tile===TILE.EXIT_S){travelToIronhaven();return;}
   if(G.map==='ironhaven'&&tile===TILE.EXIT_N){setMap('route2',11,19);return;}
+  if(G.map==='route3'&&tile===TILE.EXIT_N){setMap('ironhaven',11,24);return;}
+  if(G.map==='route3'&&tile===TILE.EXIT_S){travelToAquacore();return;}
+  if(G.map==='aquacore'&&tile===TILE.EXIT_N){setMap('route3',11,2);return;}
   if(tile===TILE.CENTER){openPokemonCenter();return;}
   if(tile===TILE.GYM){openGym();return;}
   drawMap();updateOWHeader();
@@ -642,10 +679,51 @@ function travelToIronhaven(){
     showScreen('intro');renderDialogue();
   } else setMap('ironhaven',11,2);
 }
+function travelToRoute3(){
+  if(!G.flags.visitedRoute3){
+    G.flags.visitedRoute3=true;
+    currentDialogue=[{emoji:'⚠️',speaker:'NARRATOR',text:'You enter ROUTE 3 — TOXIC WASTELAND. The water here glows with unnatural colors. Dead fish float on the surface. SYNTEK warning signs are everywhere.'}];
+    dialogueIndex=0;dialogueCallback=()=>{setMap('route3',11,2);};
+    showScreen('intro');renderDialogue();
+  } else setMap('route3',11,2);
+}
+function travelToAquacore(){
+  if(!G.flags.visitedAquacore){
+    G.flags.visitedAquacore=true;
+    currentDialogue=[{emoji:'🏙️',speaker:'NARRATOR',text:'You arrive at AQUACORE CITY — a marine metropolis built on stilts above the contaminated waters. Neon signs reflect on oily waves. The Water-type Gym awaits.'}];
+    dialogueIndex=0;dialogueCallback=()=>{setMap('aquacore',11,2);};
+    showScreen('intro');renderDialogue();
+  } else setMap('aquacore',11,2);
+}
+function travelBackToRoute3FromAquacore(){
+  setMap('route3',11,24);
+}
+
+function triggerSyntekImplantEvent(){
+  G.flags.sawSyntekImplants = true;
+  currentDialogue=[
+    {emoji:'🕵️',speaker:'MYSTERIOUS FIGURE',text:'...*static*...you shouldn't have followed me...'},
+    {emoji:'💀',speaker:'NARRATOR',text:'You peer through the toxic fog and see what was once a pumping station. Now it\'s a makeshift SYNTEK lab.'},
+    {emoji:'🔬',speaker:'NARRATOR',text:'Inside, you see rows of tanks containing Pokémon. Each has metallic implants visible under their skin.'},
+    {emoji:'💧',speaker:'NARRATOR',text:'A Mangtox floats limply in one tank, its eyes glowing with unnatural blue light. Wires protrude from its spine.'},
+    {emoji:'🐍',speaker:'NARRATOR',text:'A Toxifin spasms violently in another, its movements jerky and unnatural as if controlled by external signals.'},
+    {emoji:'👩‍🔬',speaker:'NARRATOR',text:'SYNTEK scientists in hazmat suits monitor consoles, taking notes on the Pokémon\'s neural activity.'},
+    {emoji:'⚠️',speaker:'NARRATOR',text:'One scientist notices you at the window and presses an alarm button. Red lights begin to flash.'},
+    {emoji:'🚪',speaker:'NARRATOR',text:'The facility goes into lockdown. Automated turrets emerge from the walls, targeting your position.'},
+    {emoji:'💨',speaker:'NARRATOR',text:'You barely escape as plasma bolts scorching the earth where you stood moments ago.'}
+  ];
+  dialogueIndex=0;
+  dialogueCallback=()=>{
+    // After seeing the implants, Professor Ada's dialogue should update
+    showScreen('overworld');drawMap();
+  };
+  showScreen('intro');
+  renderDialogue();
+}
 function setMap(mapId,x,y){
   fadeTransition(()=>{
     G.map=mapId;G.x=x;G.y=y;
-    const names={bootville:'BOOTVILLE',gridlock:'GRIDLOCK CITY',route2:'ROUTE 2 — IRON PASS',ironhaven:'IRONHAVEN CITY'};
+    const names={bootville:'BOOTVILLE',gridlock:'GRIDLOCK CITY',route2:'ROUTE 2 — IRON PASS',ironhaven:'IRONHAVEN CITY',route3:'ROUTE 3 — TOXIC WASTELAND',aquacore:'AQUACORE CITY'};
     G.location=names[mapId]||mapId.toUpperCase();
     showScreen('overworld');initOverworld();
   });
@@ -668,12 +746,25 @@ function handleNPCTouch(npc){
   if(npc.isGym){openGym();return;}
   if(npc.isKael){triggerKaelBattle();return;}
   if(npc.isShop){openShop();return;}
+  if(npc.isHidden){
+    // Hidden NPCs trigger special events
+    if(npc.name === 'MYSTERIOUS FIGURE' && !G.flags.sawSyntekImplants){
+      triggerSyntekImplantEvent();
+      return;
+    }
+  }
   talkToNPC(npc);
 }
 
 // ── NPC DIALOGUE ──
 function talkToNPC(npc){
-  npcDialogue=npc.dialogue;npcIndex=0;
+  // Handle function-based dialogue (returns array based on game state)
+  if(typeof npc.dialogue === 'function'){
+    npcDialogue = npc.dialogue();
+  } else {
+    npcDialogue = npc.dialogue;
+  }
+  npcIndex=0;
   document.getElementById('npc-emoji').textContent=npc.emoji;
   document.getElementById('npc-speaker').textContent=npc.name;
   document.getElementById('npc-choices').innerHTML='';
@@ -699,6 +790,7 @@ function healParty(){
 // ── GYM ──
 function openGym(){
   if(G.map==='ironhaven'){openGym2();return;}
+  if(G.map==='aquacore'){openGym3();return;}
   if(G.flags.beatGym1){notify('You already have the VOLT BADGE! ⚡','#ffdd00');return;}
   document.getElementById('gym-title').textContent='GRIDLOCK GYM';
   document.getElementById('gym-subtitle').textContent='LEADER: ZARA — ELECTRIC TYPE';
@@ -725,6 +817,35 @@ function openGym2(){
     '"You made it to Ironhaven. Most trainers turn back on Route 2. My Steel Pokémon are forged from the same iron as this city — unbreakable. Prove me wrong."';
   document.getElementById('gym-btn-battle').onclick=startGym2Battle;
   showScreen('gym');
+}
+function openGym3(){
+  if(!G.flags.beatGym2){
+    notify('You need the FORGE BADGE to challenge this Gym! 💧','#00ffff');
+    return;
+  }
+  if(G.flags.beatGym3){notify('You already have the DEPTH BADGE! 💧','#00ffff');return;}
+  document.getElementById('gym-title').textContent='AQUACORE GYM';
+  document.getElementById('gym-subtitle').textContent='LEADER: MARINA — WATER TYPE';
+  document.getElementById('gym-leader-emoji').textContent='👩‍🌊';
+  document.getElementById('gym-leader-name').textContent='MARINA';
+  document.getElementById('gym-badge-emoji').textContent='💧';
+  document.getElementById('gym-dialogue-text').textContent=
+    '"Welcome to Aquacore Gym. I am Marina, Gym Leader of this aquatic metropolis. My Water-type Pokémon rule the currents and tides. Let\'s see if you can withstand the pressure!"';
+  document.getElementById('gym-btn-battle').onclick=startGym3Battle;
+  showScreen('gym');
+}
+function startGym3Battle(){
+  const alive=G.party.filter(p=>p.hp>0);
+  if(alive.length===0){notify('Your Pokémon are all fainted! Heal first!','#ff3355');return;}
+  const marinaPoke=[
+    JSON.parse(JSON.stringify(POKEMON_BASE.marina_undyne)),
+    JSON.parse(JSON.stringify(POKEMON_BASE.marina_starmie))
+  ];
+  battleState._gymQueue=marinaPoke;
+  battleState._gymIndex=0;
+  battleState._gymLeader={name:'MARINA',emoji:'👩‍🌊'};
+  battleState._gym3=true;
+  startBattle(marinaPoke[0],true,true);
 }
 function startGymBattle(){
   const alive=G.party.filter(p=>p.hp>0);
@@ -1363,6 +1484,14 @@ function endBattle(won,caught){
       document.getElementById('result-title').className='result-title result-win';
       document.getElementById('result-detail').textContent='You defeated Leader REX!\n⚙️ You received the FORGE BADGE!\n+'+bs.xpGain+' XP  +'+moneyGain+' NC'+extra;
       document.getElementById('result-btn').onclick=()=>showGym2VictoryScene();
+      showScreen('result');return;
+    }
+    if(bs._gym3){
+      G.flags.beatGym3=true;G.badges.push('depth');
+      document.getElementById('result-title').textContent='GYM CLEARED!';
+      document.getElementById('result-title').className='result-title result-win';
+      document.getElementById('result-detail').textContent='You defeated Leader MARINA!\n💧 You received the DEPTH BADGE!\n+'+bs.xpGain+' XP  +'+moneyGain+' NC'+extra;
+      document.getElementById('result-btn').onclick=()=>showGym3VictoryScene();
       showScreen('result');return;
     }
     if(bs.isGym){

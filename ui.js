@@ -176,6 +176,17 @@ function showGymVictoryScene(){
   showScreen('intro');renderDialogue();
 }
 
+function showGym3VictoryScene(){
+  currentDialogue=[
+    {emoji:'👩‍🌊',speaker:'MARINA',text:'"...You fought well. The pressure of the deep waters didn\'t break you. Take the Depth Badge. You\'ve earned it."'},
+    {emoji:'💧',speaker:'NARRATOR',text:'You received the DEPTH BADGE! It shines with the light of sunlit waters.'},
+    {emoji:'👩‍🌊',speaker:'MARINA',text:'"I\'ve seen strange things in the trenches lately. SYNTEK vessels dropping containers that leak glowing substances. The marine life is suffering. Be careful heading east."'},
+    {emoji:'🚪',speaker:'NARRATOR',text:'You leave Aquacore Gym with 3 badges. The eastern route toward Embervault grows hotter. Your journey continues toward the Fire-type Gym.'},
+  ];
+  dialogueIndex=0;dialogueCallback=()=>{updateOWHeader();showScreen('overworld');drawMap();saveGame();};
+  showScreen('intro');renderDialogue();
+}
+
 // ── STARTUP ──
 window.addEventListener('load',()=>{
   showScreen('title');
