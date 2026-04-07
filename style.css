@@ -149,8 +149,6 @@
   .move-btn{background:#0a1628;border:1px solid #1a3050;color:var(--text);font-family:'Share Tech Mono',monospace;
     font-size:11px;padding:11px 10px;cursor:pointer;text-align:left;transition:all .15s;border-radius:4px;line-height:1.5;}
   .move-btn:hover,.move-btn:active{border-color:var(--accent);color:var(--accent);background:#0a2030;}
-  .move-btn.pp-empty{opacity:0.4;border-color:#333;color:#555;cursor:not-allowed;}
-  .move-btn.pp-empty:hover,.move-btn.pp-empty:active{border-color:#333;color:#555;background:#0a1628;}
   .move-type{font-size:9px;color:var(--textdim);display:block;margin-top:2px;}
   .battle-main-menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .main-menu-btn{background:linear-gradient(135deg,#0a1628,#0d1e36);border:1px solid #1a3050;
@@ -392,3 +390,15 @@
   .party-xp-fill{height:100%;background:linear-gradient(90deg,#8844ff,#aa66ff);border-radius:2px;transition:width .4s;}
   .party-xp-num{font-size:8px;color:#8899aa;flex-shrink:0;}
 
+
+/* ── POKÉDEX ── */
+.dex-list{flex:1;overflow-y:auto;padding:6px;}
+.dex-entry{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:4px;border-radius:6px;background:var(--card);border:1px solid #333;transition:border-color .2s;}
+.dex-entry.dex-seen{border-color:#444;}
+.dex-entry.dex-caught{border-color:var(--accent);background:rgba(0,255,200,.04);}
+.dex-num{font-size:10px;color:var(--textdim);width:30px;flex-shrink:0;}
+.dex-emoji{font-size:22px;width:30px;text-align:center;flex-shrink:0;}
+.dex-info{flex:1;}
+.dex-name{font-size:13px;font-weight:bold;color:var(--text);}
+.dex-type{font-size:10px;color:var(--textdim);margin-top:1px;}
+.dex-stats{font-size:10px;color:#aaa;margin-top:2px;}
