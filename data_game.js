@@ -29,6 +29,29 @@ const EVOLUTIONS = {
   tidaloon:{ into:'cetacean',level:32, emoji:'🐋', name:'CETACEAN',    type:'Water/Psychic', hpBonus:40, atkBonus:8,  defBonus:6  },
   coralle: { into:'reeffist',level:18, emoji:'🪼', name:'REEFIST',     type:'Water/Steel', hpBonus:29, atkBonus:8,  defBonus:8  },
   reeffist:{ into:'oceanaut',level:36, emoji:'🌊⚡',name:'OCEANAUT',   type:'Water/Electric',hpBonus:20, atkBonus:6,  defBonus:2  },
+  embervault:[
+    {x:4,y:3,emoji:'🔥',name:'GYM GUIDE',dialogue:[
+      "Welcome to EMBERVAULT GYM!",
+      "Leader IGNIS uses Fire-type Pokémon.",
+      "Water and Rock moves are super effective! Fire types resist Grass, Ice, Bug, and Steel.",
+      "Make sure you've trained before challenging her - she's intense!"
+    ],isGym:true},
+    {x:16,y:4,emoji:'👩‍⚕️',name:'NURSE JOY',dialogue:[
+      "Welcome to the Embervault Pokémon Center!",
+      "Your Pokémon will be restored to full health here — free of charge!"
+    ],isCenter:true},
+    {x:22,y:3,emoji:'🛒',name:'SHOP',dialogue:null,isShop:true},
+    {x:8,y:10,emoji:'👩‍🔬',name:'SYNTEK RESEARCHER',dialogue:[
+      "Fascinating volcanic activity here. The heat signatures are off the charts.",
+      "SYNTEK has been monitoring this area for geothermal energy potential.",
+      "But the Fire-type Pokémon here seem... agitated. Like they're reacting to something underground."
+    ]},
+    {x:2,y:12,emoji:'🧑‍🚀',name:'GEOLOGIST',dialogue:[
+      "I've been studying these rock formations for years. Something's changing down there.",
+      "The earth's temperature is rising in specific patterns - not natural volcanic activity.",
+      "Whatever SYNTEK is building, it's causing thermal anomalies in the crust."
+    ]}
+  ],
 };
 let pendingEvolution = null;
 
@@ -116,6 +139,28 @@ const TILE_COLOR={0:'#1a3a1a',1:'#0a1628',2:'#0d2a0d',3:'#0a2a3a',4:'#2a2a1a',5:
 const TILE_BORDER={0:'#1e401e',1:'#1a3050',2:'#112211',3:'#0d3a50',4:'#333320',5:'#164816',6:'#3a1a5a',7:'#5a1a1a',8:'#3a3a10',9:'#2a2a5a',10:'#2a2a5a'};
 
 const MAPS = {
+  // Embervault - Fire/Gym location (volcanic theme)
+  embervault:[
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,4,4,4,4,4,4,4,4,4,4,9,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,3,3,3,0,0,0,4,0,0,0,3,3,3,0,0,0,0,4,1],
+    [1,4,0,0,3,0,0,0,3,0,0,4,0,0,0,3,0,0,0,3,0,0,4,1],
+    [1,4,0,0,3,0,0,0,3,0,0,4,0,0,0,3,0,0,0,3,0,0,4,1],
+    [1,4,0,0,3,3,3,3,3,3,3,4,3,3,3,3,3,3,3,3,3,3,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,5,5,5,5,5,5,5,5,4,5,5,5,5,5,5,5,5,5,5,4,1],
+    [1,4,0,5,5,5,5,5,5,5,5,4,5,5,5,5,5,5,5,5,5,5,4,1],
+    [1,4,0,5,5,5,5,5,5,5,5,4,5,5,5,5,5,5,5,5,5,5,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,4,1],
+    [1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  ],
     bootville:[
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,3,3,3,0,0,1],
@@ -381,5 +426,8 @@ const WILD_BY_MAP = {
   ],
   aquacore:[
     {id:'finchen',weight:35},{id:'sparkit',weight:25},{id:'coglet',weight:15},{id:'coralle',weight:15},{id:'nullbot',weight:10}
+  ],
+  embervault:[
+    {id:'embrit',weight:20},{id:'sparkit',weight:20},{id:'voltfang',weight:15},{id:'fumewing',weight:10},{id:'coglet',weight:10},{id:'nullbot',weight:8},{id:'glitchling',weight:5},{id:'magmar',weight:12}
   ]
 };
